@@ -228,10 +228,43 @@ const validateCreateReview = (req, res, next) => {
   next();
 };
 
+const validateUpdateReview = (req, res, next) => {
+  const { rating, comment } = req.body;
+
+  // At least one field must be provided for update
+  if (rating === undefined && comment === undefined) {
+    throw new CustomError('At least one field (rating or comment) must be provided for update', 400);
+  }
+
+  // Validate rating if provided
+  if (rating !== undefined) {
+    if (typeof rating !== 'number' || !Number.isInteger(rating)) {
+      throw new CustomError('Rating must be an integer', 400);
+    }
+
+    if (rating < 1 || rating > 5) {
+      throw new CustomError('Rating must be between 1 and 5', 400);
+    }
+  }
+
+  // Validate comment if provided
+  if (comment !== undefined) {
+    if (typeof comment !== 'string') {
+      throw new CustomError('Comment must be a string', 400);
+    }
+    if (comment.trim().length > 1000) {
+      throw new CustomError('Comment cannot exceed 1000 characters', 400);
+    }
+  }
+
+  next();
+};
+
 module.exports = {
   validateSignup,
   validateLogin,
   validateAddBook,
   validateBookQuery,
-  validateCreateReview
+  validateCreateReview,
+  validateUpdateReview
 };

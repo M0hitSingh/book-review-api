@@ -4,6 +4,7 @@ const Database = require('./utils/database');
 const healthRoutes = require('./routes/health');
 const authRoutes = require('./routes/auth');
 const bookRoutes = require('./routes/books');
+const reviewRoutes = require('./routes/reviews');
 const { errorHandler } = require('./middleware');
 const { successHandler } = require('./utils');
 
@@ -16,6 +17,7 @@ async function startServer() {
     app.use('/api', healthRoutes);
     app.use('/api/auth', authRoutes);
     app.use('/api/books', bookRoutes);
+    app.use('/api/reviews', reviewRoutes);
  
     app.get('/', (req, res) => {
       successHandler(res, {
@@ -24,7 +26,8 @@ async function startServer() {
           health: '/api/health',
           signup: '/api/auth/signup',
           login: '/api/auth/login',
-          books: '/api/books'
+          books: '/api/books',
+          reviews: '/api/reviews'
         }
       }, 'Book Review API is running');
     });

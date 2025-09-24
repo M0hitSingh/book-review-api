@@ -40,6 +40,42 @@ const createReview = asyncHandler(async (req, res) => {
   }, 'Review created successfully', 201);
 });
 
+/**
+ * Update an existing review
+ * @route PUT /api/reviews/:id
+ */
+const updateReview = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { rating, comment } = req.body;
+  // Find the review
+  const review = await Review.findById(id);
+  if (!review) {
+    throw new CustomError('Review not found', 404);
+  }
+
+  await req.checkOwnership(review);
+
+  const updateData = {};
+  if (rating !== undefined) {
+    updateData.rating = rating;
+  }
+  if (comment !== undefined) {
+    updateData.comment = comment?.trim();
+  }
+  updateData.updatedAt = new Date();
+
+  const updatedReview = await Review.findByIdAndUpdate(
+    id,
+    updateData,
+    { new: true, runValidators: true }
+  ).populate('userId', 'username');
+
+  successHandler(res, {
+    review: updatedReview
+  }, 'Review updated successfully');
+});
+
 module.exports = {
-  createReview
+  createReview,
+  updateReview
 };
