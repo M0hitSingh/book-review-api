@@ -2,6 +2,7 @@ require('dotenv').config();
 const configureExpress = require('./config/express');
 const Database = require('./utils/database');
 const healthRoutes = require('./routes/health');
+const authRoutes = require('./routes/auth');
 const { errorHandler } = require('./middleware');
 const { successHandler } = require('./utils');
 
@@ -12,12 +13,15 @@ async function startServer() {
     
     // Routes
     app.use('/api', healthRoutes);
+    app.use('/api/auth', authRoutes);
  
     app.get('/', (req, res) => {
       successHandler(res, {
         version: '1.0.0',
         endpoints: {
-          health: '/api/health'
+          health: '/api/health',
+          signup: '/api/auth/signup',
+          login: '/api/auth/login'
         }
       }, 'Book Review API is running');
     });
