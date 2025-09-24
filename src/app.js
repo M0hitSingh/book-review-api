@@ -5,6 +5,7 @@ const healthRoutes = require('./routes/health');
 const authRoutes = require('./routes/auth');
 const bookRoutes = require('./routes/books');
 const reviewRoutes = require('./routes/reviews');
+const searchRoutes = require('./routes/search');
 const { errorHandler } = require('./middleware');
 const { successHandler } = require('./utils');
 
@@ -18,6 +19,7 @@ async function startServer() {
     app.use('/api/auth', authRoutes);
     app.use('/api/books', bookRoutes);
     app.use('/api/reviews', reviewRoutes);
+    app.use('/api/search', searchRoutes);
  
     app.get('/', (req, res) => {
       successHandler(res, {
@@ -27,7 +29,8 @@ async function startServer() {
           signup: '/api/auth/signup',
           login: '/api/auth/login',
           books: '/api/books',
-          reviews: '/api/reviews'
+          reviews: '/api/reviews',
+          search: '/api/search'
         }
       }, 'Book Review API is running');
     });

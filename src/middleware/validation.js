@@ -260,11 +260,57 @@ const validateUpdateReview = (req, res, next) => {
   next();
 };
 
+const validateSearch = (req, res, next) => {
+  const { q, page, limit } = req.query;
+
+  // Check required search query
+  if (!q) {
+    throw new CustomError('Search query (q) is required', 400);
+  }
+
+  // Validate search query
+  if (typeof q !== 'string') {
+    throw new CustomError('Search query must be a string', 400);
+  }
+
+  if (q.trim().length === 0) {
+    throw new CustomError('Search query cannot be empty', 400);
+  }
+
+  if (q.trim().length > 200) {
+    throw new CustomError('Search query cannot exceed 200 characters', 400);
+  }
+
+  // Validate pagination parameters if provided
+  if (page !== undefined) {
+    const pageNum = parseInt(page, 10);
+    if (isNaN(pageNum) || pageNum < 1) {
+      throw new CustomError('Page must be a positive integer', 400);
+    }
+  }
+
+  if (limit !== undefined) {
+    const limitNum = parseInt(limit, 10);
+    if (isNaN(limitNum) || limitNum < 1) {
+      throw new CustomError('Limit must be a positive integer', 400);
+    }
+    if (limitNum > 100) {
+      throw new CustomError('Limit cannot exceed 100', 400);
+    }
+  }
+
+  // Sanitize search query
+  req.query.q = q.trim();
+
+  next();
+};
+
 module.exports = {
   validateSignup,
   validateLogin,
   validateAddBook,
   validateBookQuery,
   validateCreateReview,
-  validateUpdateReview
+  validateUpdateReview,
+  validateSearch
 };

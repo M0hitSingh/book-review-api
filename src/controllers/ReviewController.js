@@ -75,7 +75,25 @@ const updateReview = asyncHandler(async (req, res) => {
   }, 'Review updated successfully');
 });
 
+/**
+ * Delete a review
+ * @route DELETE /api/reviews/:id
+ */
+const deleteReview = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const review = await Review.findById(id);
+  if (!review) {
+    throw new CustomError('Review not found', 404);
+  }
+
+  await req.checkOwnership(review);
+  await Review.findByIdAndDelete(id);
+
+  successHandler(res, null, 'Review deleted successfully');
+});
+
 module.exports = {
   createReview,
-  updateReview
+  updateReview,
+  deleteReview
 };

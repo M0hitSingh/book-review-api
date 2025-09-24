@@ -114,8 +114,38 @@ const getBookById = asyncHandler(async (req, res) => {
   }, 'Book details retrieved successfully');
 });
 
+/**
+ * Search books by title or author
+ * @route GET /api/search
+ */
+const searchBooks = asyncHandler(async (req, res) => {
+  const { q } = req.query;
+  const { page, limit, skip } = parsePaginationParams(req.query);
+  const searchQuery = {
+    $text: { $search: q }
+  };
+
+  const totalCount = await Book.countDocuments(searchQuery);
+
+  const books = await Book.find(searchQuery, { score: { $meta: 'textScore' } })
+    .populate('createdBy', 'username email')
+    .sort({ score: { $meta: 'textScore' }, createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  const pagination = createPaginationMeta(totalCount, page, limit);
+
+  successHandler(res, {
+    books,
+    pagination,
+    searchQuery: q
+  }, totalCount > 0 ? 'Search results retrieved successfully' : 'No books found matching your search');
+});
+
 module.exports = {
   addBook,
   getBooks,
-  getBookById
+  getBookById,
+  searchBooks
 };
