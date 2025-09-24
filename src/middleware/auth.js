@@ -18,7 +18,7 @@ const authenticate = async (req, res, next) => {
       return next(createError(401, error.message));
     }
 
-    const user = await User.findById(decoded.userId);
+    const user = await User.findById(decoded.id);
     if (!user) {
       return next(createError(401, 'User not found'));
     }
