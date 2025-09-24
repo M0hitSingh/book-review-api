@@ -146,8 +146,92 @@ const validateAddBook = (req, res, next) => {
   next();
 };
 
+const validateBookQuery = (req, res, next) => {
+  const { author, genre, page, limit } = req.query;
+
+  // Validate author filter if provided
+  if (author !== undefined) {
+    if (typeof author !== 'string') {
+      throw new CustomError('Author filter must be a string', 400);
+    }
+    if (author.trim().length === 0) {
+      throw new CustomError('Author filter cannot be empty', 400);
+    }
+    if (author.trim().length > 100) {
+      throw new CustomError('Author filter cannot exceed 100 characters', 400);
+    }
+    req.query.author = author.trim();
+  }
+
+  // Validate genre filter if provided
+  if (genre !== undefined) {
+    if (typeof genre !== 'string') {
+      throw new CustomError('Genre filter must be a string', 400);
+    }
+    if (genre.trim().length === 0) {
+      throw new CustomError('Genre filter cannot be empty', 400);
+    }
+    if (genre.trim().length > 50) {
+      throw new CustomError('Genre filter cannot exceed 50 characters', 400);
+    }
+    req.query.genre = genre.trim();
+  }
+
+  // Validate pagination parameters if provided
+  if (page !== undefined) {
+    const pageNum = parseInt(page, 10);
+    if (isNaN(pageNum) || pageNum < 1) {
+      throw new CustomError('Page must be a positive integer', 400);
+    }
+  }
+
+  if (limit !== undefined) {
+    const limitNum = parseInt(limit, 10);
+    if (isNaN(limitNum) || limitNum < 1) {
+      throw new CustomError('Limit must be a positive integer', 400);
+    }
+    if (limitNum > 100) {
+      throw new CustomError('Limit cannot exceed 100', 400);
+    }
+  }
+
+  next();
+};
+
+const validateCreateReview = (req, res, next) => {
+  const { rating, comment } = req.body;
+
+  // Check required fields
+  if (!rating) {
+    throw new CustomError('Rating is required', 400);
+  }
+
+  // Validate rating
+  if (typeof rating !== 'number' || !Number.isInteger(rating)) {
+    throw new CustomError('Rating must be an integer', 400);
+  }
+
+  if (rating < 1 || rating > 5) {
+    throw new CustomError('Rating must be between 1 and 5', 400);
+  }
+
+  // Validate optional comment
+  if (comment !== undefined) {
+    if (typeof comment !== 'string') {
+      throw new CustomError('Comment must be a string', 400);
+    }
+    if (comment.trim().length > 1000) {
+      throw new CustomError('Comment cannot exceed 1000 characters', 400);
+    }
+  }
+
+  next();
+};
+
 module.exports = {
   validateSignup,
   validateLogin,
-  validateAddBook
+  validateAddBook,
+  validateBookQuery,
+  validateCreateReview
 };

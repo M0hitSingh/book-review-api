@@ -45,10 +45,8 @@ const bookSchema = new mongoose.Schema({
   }
 });
 
-// Create text index for search functionality
 bookSchema.index({ title: 'text', author: 'text' });
 
-// Create compound index for efficient queries
 bookSchema.index({ genre: 1, createdAt: -1 });
 bookSchema.index({ author: 1, createdAt: -1 });
 
