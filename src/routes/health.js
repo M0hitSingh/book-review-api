@@ -1,28 +1,24 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { successHandler, CustomError } = require('../utils');
 const router = express.Router();
 
 //  Health check endpoint for testing API availability and database connection
-router.get('/health', (req, res) => {
+router.get('/health', (req, res, next) => {
   try {
     const healthCheck = {
       message: 'API is running',
-      database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+      database: 'connected',
       environment: process.env.NODE_ENV || 'development'
     };
-    
-    res.status(200).json({
-      success: true,
-      data: healthCheck,
-      message: 'Health check successful'
-    });
+
+    if (mongoose.connection.readyState !== 1) {
+      throw new CustomError('Database connection failed', 503);
+    }
+
+    successHandler(res, healthCheck, 'Health check successful');
   } catch (error) {
-    healthCheck.message = 'Health check failed';
-    res.status(503).json({
-      success: false,
-      data: healthCheck,
-      error: error.message
-    });
+    next(error);
   }
 });
 

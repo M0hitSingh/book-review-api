@@ -2,6 +2,8 @@ require('dotenv').config();
 const configureExpress = require('./config/express');
 const Database = require('./utils/database');
 const healthRoutes = require('./routes/health');
+const { errorHandler } = require('./middleware');
+const { successHandler } = require('./utils');
 
 async function startServer() {
   try {
@@ -12,14 +14,12 @@ async function startServer() {
     app.use('/api', healthRoutes);
  
     app.get('/', (req, res) => {
-      res.json({
-        success: true,
-        message: 'Book Review API is running',
+      successHandler(res, {
         version: '1.0.0',
         endpoints: {
           health: '/api/health'
         }
-      });
+      }, 'Book Review API is running');
     });
 
     app.use(/(.*)/, (req, res) => {
@@ -30,16 +30,8 @@ async function startServer() {
       });
     });
 
-    // error handler
-    app.use((error, req, res, next) => {
-      console.error('Unhandled error:', error);
-      
-      res.status(error.status || 500).json({
-        success: false,
-        error: error.message || 'Internal server error',
-        ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
-      });
-    });
+    // Centralized error handler
+    app.use(errorHandler);
     
     // Start server
     const PORT = process.env.PORT || 3000;
